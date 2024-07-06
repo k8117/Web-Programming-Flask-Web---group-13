@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Generation Data</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Waste Generation Data Visualization</h1>
+    <div>
+        <h2>Total Annual Waste</h2>
+        <div id="total-waste-chart"></div>
+        <script>
+        /* fetch('/api/total_waste')
+                .then(response => response.json())
+                .then(data => {
+                    const totalWasteData = data.map(item => ({
+                        x: item.year,
+                        y: item.annual_waste,
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        name: item.province
+                    }));
+                    Plotly.newPlot('total-waste-chart', totalWasteData);
+                });*/
+            
+            fetch('/api/total_waste')
+            .then(response => response.json())
+            .then(data => {
+                const traces = [];
+                const provinces = [...new Set(data.map(item => item.province))];
+                provinces.forEach(province => {
+                    const filteredData = data.filter(item => item.province === province);
+                    traces.push({
+                        x: filteredData.map(item => item.year),
+                        y: filteredData.map(item => item.annual_waste),
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        name: province
+                    });
+                });
+                Plotly.newPlot('total-waste-chart', traces);
+                });
+        </script>
+    </div>
+    <div>
+        <h2>Average Annual Waste</h2>
+        <div id="avg-waste-chart"></div>
+        <script>
+            fetch('/api/avg_waste')
+                .then(response => response.json())
+                .then(data => {
+                    const categories = {
+                        'GREEN': 'green',
+                        'ORANGE': 'orange',
+                        'RED': 'red'
+                    };
+                    const avgWasteData = [{
+                        x: data.map(item => item.province),
+                        y: data.map(item => item.avg_annual_waste),
+                        type: 'bar',
+                        marker: {
+                            color: data.map(item => categories[item.category])
+                        }
+                    }];
+                    Plotly.newPlot('avg-waste-chart', avgWasteData);
+                });
+        </script>
+    </div>
+</body>
+</html>
